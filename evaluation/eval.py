@@ -68,7 +68,7 @@ def train_epoch(model, trainLoader, optimizer, loss_func, device):
     model.to(device)
     for batch in tqdm.tqdm(trainLoader, desc='Training:    ', mininterval=2):
         batch = batch.to(device)
-        pred = model(batch)
+        pred = model(batch).to(device)
         loss, prediction, ground_truth = loss_func(pred, batch)
         optimizer.zero_grad()
         loss.backward()
@@ -82,8 +82,9 @@ def test_epoch(model, testLoader, loss_func, device):
     prediction = torch.tensor([], device=device)
     for batch in tqdm.tqdm(testLoader, desc='Testing:     ', mininterval=2):
         batch = batch.to(device)
-        pred = model(batch)
+        pred = model(batch).to(device)
         loss, p, a = loss_func(pred, batch)
-        prediction = torch.cat([prediction, p])
+        prediction = torch.cat([prediction, p[:]])
         ground_truth = torch.cat([ground_truth, a])
     performance(ground_truth, prediction)
+    return prediction, ground_truth

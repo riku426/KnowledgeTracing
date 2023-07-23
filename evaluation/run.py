@@ -32,7 +32,11 @@ import numpy as np
 
 from datetime import datetime
 from docopt import docopt
+from data.readdata import DataReader
+
 from data.dataloader import getDataLoader
+import torch.utils.data as Data
+
 from evaluation import eval
 
 
@@ -86,6 +90,7 @@ def main():
         device = torch.device('cpu')
 
     trainLoader, testLoade = getDataLoader(bs, questions, length)
+
     
     if model_type == 'RNN':
         from model.DKT.RNNModel import RNNModel
@@ -102,7 +107,42 @@ def main():
         model, optimizer = eval.train_epoch(model, trainLoader, optimizer,
                                           loss_func, device)
         logger.info(f'epoch {epoch}')
-        eval.test_epoch(model, testLoade, loss_func, device)
+        pred, truth = eval.test_epoch(model, testLoade, loss_func, device)
+        
+    print(pred.shape)
+    print(truth.shape)
+    import csv
+    save_truth = truth.tolist()[:49048]
+    save_pred = pred.tolist()[:49048]
+    with open('dataset/save_truth.csv', 'w', encoding='utf_8_sig') as f:
+        writer = csv.writer(f, lineterminator='\n')
+        for i in save_truth:
+            writer.writerow([i])
+    with open('dataset/save_pred.csv', 'w', encoding='utf_8_sig') as f:
+        writer = csv.writer(f, lineterminator='\n')
+        for i in save_pred:
+            writer.writerow([i])
+    handle = DataReader('dataset/assist2009/4_Ass_09_train.csv',
+                        'dataset/assist2009/4_Ass_09_test.csv', length,
+                        questions)
+    dtrain = torch.tensor(handle.getTrainData().astype(float).tolist(),
+                          dtype=torch.float32)
+    trainLoader = Data.DataLoader(dtrain, batch_size=bs, shuffle=False)
+    pred, truth = eval.test_epoch(model, trainLoader, loss_func, device)
+    save_truth = truth.tolist()[:197027]
+    save_pred = pred.tolist()[:197027]
+    with open('dataset/train_save_truth.csv', 'w', encoding='utf_8_sig') as f:
+        writer = csv.writer(f, lineterminator='\n')
+        for i in save_truth:
+            writer.writerow([i])
+    with open('dataset/train_save_pred.csv', 'w', encoding='utf_8_sig') as f:
+        writer = csv.writer(f, lineterminator='\n')
+        for i in save_pred:
+            writer.writerow([i])
+    
+    
+    
+    
 
 
 if __name__ == '__main__':
