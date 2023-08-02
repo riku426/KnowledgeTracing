@@ -64,7 +64,8 @@ class DataReader():
                                 else:
                                     temp[j][skill[i*self.maxstep + j] + self.numofques] = 1
                             len = len - self.maxstep
-                        data.append(temp.tolist())
+                        data.append(temp)
+            data = np.array(data)
             print('done: ' + str(np.array(data).shape))
         return data
 

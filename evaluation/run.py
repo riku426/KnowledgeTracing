@@ -32,8 +32,9 @@ import numpy as np
 
 from datetime import datetime
 from docopt import docopt
-from data.readdata import DataReader
-
+# from data.readdata import DataReader
+from data.readdata_v2 import DataReader
+# from data.readdata_v3 import DataReader
 from data.dataloader import getDataLoader
 import torch.utils.data as Data
 
@@ -94,7 +95,9 @@ def main():
     
     if model_type == 'RNN':
         from model.DKT.RNNModel import RNNModel
-        model = RNNModel(questions * 2, hidden, layers, questions, device)
+        # model = RNNModel(questions * 2, hidden, layers, questions, device)
+        ## v2
+        model = RNNModel(questions * 2 * 11, hidden, layers, questions, device)
     elif model_type == 'SAKT':
         from model.SAKT.model import SAKTModel
         model = SAKTModel(heads, length, hidden, questions, dropout)
@@ -112,6 +115,7 @@ def main():
     print(pred.shape)
     print(truth.shape)
     import csv
+    pred, truth = eval.test_epoch(model, testLoade, loss_func, device)
     save_truth = truth.tolist()[:49048]
     save_pred = pred.tolist()[:49048]
     with open('dataset/save_truth.csv', 'w', encoding='utf_8_sig') as f:
@@ -125,8 +129,7 @@ def main():
     handle = DataReader('dataset/assist2009/4_Ass_09_train.csv',
                         'dataset/assist2009/4_Ass_09_test.csv', length,
                         questions)
-    dtrain = torch.tensor(handle.getTrainData().astype(float).tolist(),
-                          dtype=torch.float32)
+    dtrain = torch.from_numpy(handle.getTrainData().astype(float)).float()
     trainLoader = Data.DataLoader(dtrain, batch_size=bs, shuffle=False)
     pred, truth = eval.test_epoch(model, trainLoader, loss_func, device)
     save_truth = truth.tolist()[:197027]
