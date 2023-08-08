@@ -5,7 +5,7 @@
 # @Last Modified time: 2020-05-10 13:20:09
 """
 Usage:
-    run.py (rnn|sakt) --hidden=<h> [options]
+    run.py (rnn|sakt|eernn|transformer) --hidden=<h> [options]
 
 Options:
     --length=<int>                      max length of question sequence [default: 50]
@@ -33,8 +33,8 @@ import numpy as np
 from datetime import datetime
 from docopt import docopt
 # from data.readdata import DataReader
-from data.readdata_v2 import DataReader
-# from data.readdata_v3 import DataReader
+# from data.readdata_v2 import DataReader
+from data.readdata_v3 import DataReader
 from data.dataloader import getDataLoader
 import torch.utils.data as Data
 
@@ -68,6 +68,10 @@ def main():
         model_type = 'RNN'
     elif args['sakt']:
         model_type = 'SAKT'
+    elif args['eernn']:
+        model_type = 'EERNN'
+    elif args['transformer']:
+        model_type = 'TRANSFORMER'
 
     logger = logging.getLogger('main')
     logger.setLevel(level=logging.DEBUG)
@@ -95,12 +99,23 @@ def main():
     
     if model_type == 'RNN':
         from model.DKT.RNNModel import RNNModel
-        # model = RNNModel(questions * 2, hidden, layers, questions, device)
+        model = RNNModel(questions * 2, hidden, layers, questions, device, dropout)
         ## v2
-        model = RNNModel(questions * 2 * 11, hidden, layers, questions, device)
+        # model = RNNModel(questions * 2 * 11, hidden, layers, questions, device)
     elif model_type == 'SAKT':
         from model.SAKT.model import SAKTModel
         model = SAKTModel(heads, length, hidden, questions, dropout)
+    elif model_type == 'EERNN':
+        from model.EERNN.EERNNModel import EERNNModel
+        model = EERNNModel(questions * 2, hidden, layers, questions, device, dropout)
+    elif model_type == 'TRANSFORMER':
+        from model.TRANSFORMER.TRANSFORMERModel import TRANSFORMERModel
+        model = TRANSFORMERModel(num_encoder_layers=1,
+                                 num_decoder_layers=1,
+                                 d_model=256,
+                                 d_input=1,
+                                 d_output=1,
+                                )
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
     loss_func = eval.lossFunc(questions, length, device)

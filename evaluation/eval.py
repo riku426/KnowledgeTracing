@@ -49,28 +49,31 @@ class lossFunc(nn.Module):
             batch = torch.where(batch >= 1, 1.0, 0.0)
             # delta = batch[student][:, 0:self.num_of_questions] + batch[
             #     student][:, self.num_of_questions:]  # shape: [length, questions]
+            # delta = batch[student][:, 0:self.num_of_questions] + batch[
+            #     student][:, self.num_of_questions:self.num_of_questions*2] + batch[
+            #     student][:, self.num_of_questions*2:self.num_of_questions*3] + batch[
+            #     student][:, self.num_of_questions*3:self.num_of_questions*4] + batch[
+            #     student][:, self.num_of_questions*4:self.num_of_questions*5] + batch[
+            #     student][:, self.num_of_questions*5:self.num_of_questions*6] + batch[
+            #     student][:, self.num_of_questions*6:self.num_of_questions*7] + batch[
+            #     student][:, self.num_of_questions*7:self.num_of_questions*8] + batch[
+            #     student][:, self.num_of_questions*8:self.num_of_questions*9] + batch[
+            #     student][:, self.num_of_questions*9:self.num_of_questions*10] + batch[
+            #     student][:, self.num_of_questions*10:self.num_of_questions*11] + batch[
+            #     student][:, self.num_of_questions*11:self.num_of_questions*12] + batch[
+            #     student][:, self.num_of_questions*12:self.num_of_questions*13] + batch[
+            #     student][:, self.num_of_questions*13:self.num_of_questions*14] + batch[
+            #     student][:, self.num_of_questions*14:self.num_of_questions*15] + batch[
+            #     student][:, self.num_of_questions*15:self.num_of_questions*16] + batch[
+            #     student][:, self.num_of_questions*16:self.num_of_questions*17] + batch[
+            #     student][:, self.num_of_questions*17:self.num_of_questions*18] +  batch[
+            #     student][:, self.num_of_questions*18:self.num_of_questions*19] + batch[
+            #     student][:, self.num_of_questions*19:self.num_of_questions*20] + batch[
+            #     student][:, self.num_of_questions*20:self.num_of_questions*21] + batch[
+            #     student][:, self.num_of_questions*21:]    # shape: [length, questions]
+            # v3
             delta = batch[student][:, 0:self.num_of_questions] + batch[
-                student][:, self.num_of_questions:self.num_of_questions*2] + batch[
-                student][:, self.num_of_questions*2:self.num_of_questions*3] + batch[
-                student][:, self.num_of_questions*3:self.num_of_questions*4] + batch[
-                student][:, self.num_of_questions*4:self.num_of_questions*5] + batch[
-                student][:, self.num_of_questions*5:self.num_of_questions*6] + batch[
-                student][:, self.num_of_questions*6:self.num_of_questions*7] + batch[
-                student][:, self.num_of_questions*7:self.num_of_questions*8] + batch[
-                student][:, self.num_of_questions*8:self.num_of_questions*9] + batch[
-                student][:, self.num_of_questions*9:self.num_of_questions*10] + batch[
-                student][:, self.num_of_questions*10:self.num_of_questions*11] + batch[
-                student][:, self.num_of_questions*11:self.num_of_questions*12] + batch[
-                student][:, self.num_of_questions*12:self.num_of_questions*13] + batch[
-                student][:, self.num_of_questions*13:self.num_of_questions*14] + batch[
-                student][:, self.num_of_questions*14:self.num_of_questions*15] + batch[
-                student][:, self.num_of_questions*15:self.num_of_questions*16] + batch[
-                student][:, self.num_of_questions*16:self.num_of_questions*17] + batch[
-                student][:, self.num_of_questions*17:self.num_of_questions*18] +  batch[
-                student][:, self.num_of_questions*18:self.num_of_questions*19] + batch[
-                student][:, self.num_of_questions*19:self.num_of_questions*20] + batch[
-                student][:, self.num_of_questions*20:self.num_of_questions*21] + batch[
-                student][:, self.num_of_questions*21:]    # shape: [length, questions]
+                student][:, self.num_of_questions:248]
             # ここまで修正した。
             # ToDo
             # 上のerrorを修正する
@@ -84,29 +87,32 @@ class lossFunc(nn.Module):
             batch = torch.where(batch >= 1, 1.0, 0.0)
             # a = (((batch[student][:, 0:self.num_of_questions] -
             #        batch[student][:, self.num_of_questions:]).sum(1) + 1) // 2)[1:]
-            a = (((batch[student][:, 0:self.num_of_questions] - batch[
-                student][:, self.num_of_questions:self.num_of_questions*2] + batch[
-                student][:, self.num_of_questions*2:self.num_of_questions*3] - batch[
-                student][:, self.num_of_questions*3:self.num_of_questions*4] + batch[
-                student][:, self.num_of_questions*4:self.num_of_questions*5] - batch[
-                student][:, self.num_of_questions*5:self.num_of_questions*6] + batch[
-                student][:, self.num_of_questions*6:self.num_of_questions*7] - batch[
-                student][:, self.num_of_questions*7:self.num_of_questions*8] + batch[
-                student][:, self.num_of_questions*8:self.num_of_questions*9] - batch[
-                student][:, self.num_of_questions*9:self.num_of_questions*10] + batch[
-                student][:, self.num_of_questions*10:self.num_of_questions*11] - batch[
-                student][:, self.num_of_questions*11:self.num_of_questions*12] + batch[
-                student][:, self.num_of_questions*12:self.num_of_questions*13] - batch[
-                student][:, self.num_of_questions*13:self.num_of_questions*14] + batch[
-                student][:, self.num_of_questions*14:self.num_of_questions*15] - batch[
-                student][:, self.num_of_questions*15:self.num_of_questions*16] + batch[
-                student][:, self.num_of_questions*16:self.num_of_questions*17] - batch[
-                student][:, self.num_of_questions*17:self.num_of_questions*18] +  batch[
-                student][:, self.num_of_questions*18:self.num_of_questions*19] - batch[
-                student][:, self.num_of_questions*19:self.num_of_questions*20] + batch[
-                student][:, self.num_of_questions*20:self.num_of_questions*21] - batch[
-                student][:, self.num_of_questions*21:]).sum(1) + 1) //
-                 2)[1:]
+            # a = (((batch[student][:, 0:self.num_of_questions] - batch[
+            #     student][:, self.num_of_questions:self.num_of_questions*2] + batch[
+            #     student][:, self.num_of_questions*2:self.num_of_questions*3] - batch[
+            #     student][:, self.num_of_questions*3:self.num_of_questions*4] + batch[
+            #     student][:, self.num_of_questions*4:self.num_of_questions*5] - batch[
+            #     student][:, self.num_of_questions*5:self.num_of_questions*6] + batch[
+            #     student][:, self.num_of_questions*6:self.num_of_questions*7] - batch[
+            #     student][:, self.num_of_questions*7:self.num_of_questions*8] + batch[
+            #     student][:, self.num_of_questions*8:self.num_of_questions*9] - batch[
+            #     student][:, self.num_of_questions*9:self.num_of_questions*10] + batch[
+            #     student][:, self.num_of_questions*10:self.num_of_questions*11] - batch[
+            #     student][:, self.num_of_questions*11:self.num_of_questions*12] + batch[
+            #     student][:, self.num_of_questions*12:self.num_of_questions*13] - batch[
+            #     student][:, self.num_of_questions*13:self.num_of_questions*14] + batch[
+            #     student][:, self.num_of_questions*14:self.num_of_questions*15] - batch[
+            #     student][:, self.num_of_questions*15:self.num_of_questions*16] + batch[
+            #     student][:, self.num_of_questions*16:self.num_of_questions*17] - batch[
+            #     student][:, self.num_of_questions*17:self.num_of_questions*18] +  batch[
+            #     student][:, self.num_of_questions*18:self.num_of_questions*19] - batch[
+            #     student][:, self.num_of_questions*19:self.num_of_questions*20] + batch[
+            #     student][:, self.num_of_questions*20:self.num_of_questions*21] - batch[
+            #     student][:, self.num_of_questions*21:]).sum(1) + 1) //
+            #      2)[1:]
+            # v3
+            a = (((batch[student][:, 0:self.num_of_questions] -
+                   batch[student][:, self.num_of_questions:248]).sum(1) + 1) // 2)[1:]
             for i in range(len(p) - 1, -1, -1):
                 if p[i] > 0:
                     p = p[:i + 1]

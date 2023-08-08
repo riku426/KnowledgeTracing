@@ -6,8 +6,9 @@
 import torch
 import torch.utils.data as Data
 # from data.readdata import DataReader
-from data.readdata_v2 import DataReader
-# from data.readdata_v3 import DataReader
+# from data.readdata_v2 import DataReader
+from data.readdata_v3 import DataReader
+from collections import defaultdict
 
 
 def getDataLoader(batch_size, num_of_questions, max_step):
@@ -18,7 +19,6 @@ def getDataLoader(batch_size, num_of_questions, max_step):
                         'dataset/assist2009/4_Ass_09_test.csv', max_step,
                         num_of_questions)
     dtrain = torch.from_numpy(handle.getTrainData().astype(float)).float()
-    print(1)
     dtest = torch.from_numpy(handle.getTestData().astype(float)).float()
     print(2)
     trainLoader = Data.DataLoader(dtrain, batch_size=batch_size, shuffle=True)
