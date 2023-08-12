@@ -50,3 +50,8 @@ EERNNM + 困難度
 
 困難度とability_profileとskillをembeddingしたものを横に足して、attentionを加える
 0.7698 python -m evaluation.run rnn --hidden=256 --length=739 --epochs=15 --dropout=0.2
+
+
+
+## algebra
+python -m evaluation.run rnn --hidden=256 --length=200 --epochs=40 --dropout=0.2 --questions=138 --bs=32

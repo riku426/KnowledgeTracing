@@ -17,10 +17,11 @@ device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 class EERNNModel(nn.Module):
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim, device, dropout):
         super(EERNNModel, self).__init__()
+        self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.layer_dim = layer_dim
         self.output_dim = output_dim
-        self.rnn = nn.LSTM(256+96,             #(input_dim) or 438
+        self.rnn = nn.LSTM(256+96+96+96,             #(input_dim) or 438
                           hidden_dim,
                           layer_dim,
                           batch_first=True)
@@ -44,7 +45,7 @@ class EERNNModel(nn.Module):
         self.z2 = nn.Linear(256+9, 256)
         self.tanz2 = nn.Tanh()
         
-        self.skill_emb = nn.Embedding(125, 256)
+        self.skill_emb = nn.Embedding(self.input_dim+1, 256)
         self.skill_emb.weight.data[-1]= 0
         
         self.ans_emb = nn.Embedding(2, 96)
@@ -110,7 +111,7 @@ class EERNNModel(nn.Module):
             for j in range(x.shape[1]):
                 diff = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 ability = [0, 0, 0, 0, 0, 0, 0, 0]
-                new_x_2.append(x[i][j][:248])
+                new_x_2.append(x[i][j][:self.input_dim])
                 diff[int(x[i][j][-1])] = 1
                 ability[int(x[i][j][-2])] = 1
                 difficulty_2.append(torch.Tensor(diff))
@@ -145,7 +146,7 @@ class EERNNModel(nn.Module):
         
         skill_emb = self.skill_emb(skill)
         diff_emb = self.diff_emb(dif)
-        abili_emb = self.diff_emb(abili)
+        abili_emb = self.abili_emb(abili)
         ans_emb = self.ans_emb(ans)
         
         skill_answer=torch.cat((skill_emb,ans_emb), 2)
@@ -155,7 +156,7 @@ class EERNNModel(nn.Module):
         
         skill_answer_emb=torch.where(answer==1, skill_answer, answer_skill)
         
-        new_x = torch.cat([skill_answer_emb], dim=2)
+        new_x = torch.cat([skill_answer_emb, diff_emb, abili_emb], dim=2)
         
         new_x = self.tanh(new_x)
         
@@ -172,16 +173,6 @@ class EERNNModel(nn.Module):
 
         
         out, _  = self.rnn(new_x, (h_0, c_0))  # shape of out: [batch_size, length, hidden_size]
-        
-        
-        # z1 = self.z1(torch.cat([abilitys, out], dim=2))
-        # z1 = self.tanz1(z1)
-        # z2 = self.z2(torch.cat([abilitys, out], dim=2))
-        # z2 = self.tanz2(z2)
-        
-        # ht = torch.cat([z1 * abilitys, z2 * out], dim=2)
-        
-        # new_out, _ = self.rnn2(ht)
         
                 
         

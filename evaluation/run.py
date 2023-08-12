@@ -40,6 +40,8 @@ import torch.utils.data as Data
 
 from evaluation import eval
 
+dataset = 'algebra'
+
 
 def setup_seed(seed=0):
     random.seed(seed)
@@ -108,14 +110,6 @@ def main():
     elif model_type == 'EERNN':
         from model.EERNN.EERNNModel import EERNNModel
         model = EERNNModel(questions * 2, hidden, layers, questions, device, dropout)
-    elif model_type == 'TRANSFORMER':
-        from model.TRANSFORMER.TRANSFORMERModel import TRANSFORMERModel
-        model = TRANSFORMERModel(num_encoder_layers=1,
-                                 num_decoder_layers=1,
-                                 d_model=256,
-                                 d_input=1,
-                                 d_output=1,
-                                )
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
     loss_func = eval.lossFunc(questions, length, device)
@@ -133,15 +127,23 @@ def main():
     pred, truth = eval.test_epoch(model, testLoade, loss_func, device)
     save_truth = truth.tolist()[:49048]
     save_pred = pred.tolist()[:49048]
-    with open('dataset/save_truth.csv', 'w', encoding='utf_8_sig') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        for i in save_truth:
-            writer.writerow([i])
-    with open('dataset/save_pred.csv', 'w', encoding='utf_8_sig') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        for i in save_pred:
-            writer.writerow([i])
-    handle = DataReader('dataset/assist2009/4_Ass_09_train.csv',
+    # with open('dataset/save_truth.csv', 'w', encoding='utf_8_sig') as f:
+    #     writer = csv.writer(f, lineterminator='\n')
+    #     for i in save_truth:
+    #         writer.writerow([i])
+    # with open('dataset/save_pred.csv', 'w', encoding='utf_8_sig') as f:
+    #     writer = csv.writer(f, lineterminator='\n')
+    #     for i in save_pred:
+    #         writer.writerow([i])
+    # handle = DataReader('dataset/assist2009/4_Ass_09_train.csv',
+    #                     'dataset/assist2009/4_Ass_09_test.csv', length,
+    #                     questions)
+    if dataset == 'algebra':
+        handle = DataReader('dataset/algebra05/algebra_train.csv',
+                        'dataset/algebra/algebra_test.csv', length,
+                        questions)
+    elif dataset == 'assist2009':
+        handle = DataReader('dataset/assist2009/4_Ass_09_train.csv',
                         'dataset/assist2009/4_Ass_09_test.csv', length,
                         questions)
     dtrain = torch.from_numpy(handle.getTrainData().astype(float)).float()
@@ -149,14 +151,14 @@ def main():
     pred, truth = eval.test_epoch(model, trainLoader, loss_func, device)
     save_truth = truth.tolist()[:197027]
     save_pred = pred.tolist()[:197027]
-    with open('dataset/train_save_truth.csv', 'w', encoding='utf_8_sig') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        for i in save_truth:
-            writer.writerow([i])
-    with open('dataset/train_save_pred.csv', 'w', encoding='utf_8_sig') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        for i in save_pred:
-            writer.writerow([i])
+    # with open('dataset/train_save_truth.csv', 'w', encoding='utf_8_sig') as f:
+    #     writer = csv.writer(f, lineterminator='\n')
+    #     for i in save_truth:
+    #         writer.writerow([i])
+    # with open('dataset/train_save_pred.csv', 'w', encoding='utf_8_sig') as f:
+    #     writer = csv.writer(f, lineterminator='\n')
+    #     for i in save_pred:
+    #         writer.writerow([i])
     
     
     

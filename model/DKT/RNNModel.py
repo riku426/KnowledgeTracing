@@ -16,11 +16,13 @@ device = torch.device("mps" if torch.cuda.is_available() else "cpu")
 
 class RNNModel(nn.Module):
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim, device, dropout):
+        print('input_dim', input_dim)
         super(RNNModel, self).__init__()
+        self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.layer_dim = layer_dim
         self.output_dim = output_dim
-        self.rnn = nn.LSTM(248+11+8,             #(input_dim) or 438
+        self.rnn = nn.LSTM(input_dim+11+8,             #(input_dim) or 438
                           hidden_dim,
                           layer_dim,
                           batch_first=True)
@@ -34,10 +36,10 @@ class RNNModel(nn.Module):
         self.tanh = nn.Tanh()
         self.device = device
         self.iput_dim = input_dim
-        self.fc1 = nn.Linear(267, 248) #(259, 248) or (267, 248)
+        self.fc1 = nn.Linear(267, input_dim) #(259, 248) or (267, 248)
         self.drop1 = nn.Dropout(dropout)
         self.tanh2 = nn.Tanh()
-        self.fc2 = nn.Linear(150+96+96, 248)
+        self.fc2 = nn.Linear(150+96+96, input_dim)
         
     def _get_next_pred(self, res, skill):
         
@@ -65,7 +67,7 @@ class RNNModel(nn.Module):
             for j in range(x.shape[1]):
                 diff = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 ability = [0, 0, 0, 0, 0, 0, 0, 0]
-                new_x_2.append(x[i][j][:248])
+                new_x_2.append(x[i][j][:self.input_dim])
                 diff[int(x[i][j][-1])] = 1
                 ability[int(x[i][j][-2])] = 1
                 difficulty_2.append(torch.Tensor(diff))
