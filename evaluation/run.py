@@ -20,6 +20,7 @@ Options:
     --heads=<int>                       head number of transformer [default: 8]
     --dropout=<float>                   dropout rate [default: 0.1]
     --model=<string>                    model type
+    --dataset=<string>                  dataset name [default: assist2009]
 """
 
 import os
@@ -40,7 +41,6 @@ import torch.utils.data as Data
 
 from evaluation import eval
 
-dataset = 'algebra'
 
 
 def setup_seed(seed=0):
@@ -66,6 +66,8 @@ def main():
     layers = int(args['--layers'])
     heads = int(args['--heads'])
     dropout = float(args['--dropout'])
+    dataset = str(args['--dataset'])
+    print('dataset:', dataset)
     if args['rnn']:
         model_type = 'RNN'
     elif args['sakt']:
@@ -96,7 +98,7 @@ def main():
     else:
         device = torch.device('cpu')
 
-    trainLoader, testLoade = getDataLoader(bs, questions, length)
+    trainLoader, testLoade = getDataLoader(bs, questions, length, dataset)
 
     
     if model_type == 'RNN':
@@ -141,11 +143,11 @@ def main():
     if dataset == 'algebra':
         handle = DataReader('dataset/algebra05/algebra_train.csv',
                         'dataset/algebra/algebra_test.csv', length,
-                        questions)
+                        questions, dataset)
     elif dataset == 'assist2009':
         handle = DataReader('dataset/assist2009/4_Ass_09_train.csv',
                         'dataset/assist2009/4_Ass_09_test.csv', length,
-                        questions)
+                        questions, dataset)
     dtrain = torch.from_numpy(handle.getTrainData().astype(float)).float()
     trainLoader = Data.DataLoader(dtrain, batch_size=bs, shuffle=False)
     pred, truth = eval.test_epoch(model, trainLoader, loss_func, device)

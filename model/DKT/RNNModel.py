@@ -36,10 +36,6 @@ class RNNModel(nn.Module):
         self.tanh = nn.Tanh()
         self.device = device
         self.iput_dim = input_dim
-        self.fc1 = nn.Linear(267, input_dim) #(259, 248) or (267, 248)
-        self.drop1 = nn.Dropout(dropout)
-        self.tanh2 = nn.Tanh()
-        self.fc2 = nn.Linear(150+96+96, input_dim)
         
     def _get_next_pred(self, res, skill):
         
@@ -90,10 +86,6 @@ class RNNModel(nn.Module):
         
         new_x = self.tanh(new_x)
         
-        
-        # new_x = torch.cat([new_x, difficulty, abilitys], dim=2) # [64, 739, 258]
-        # new_x = self.tanh(self.fc1(new_x))
-        
         # shape: [num_layers * num_directions, batch_size, hidden_size]
         # h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, device=self.device)  # shape: [num_layers * num_directions, batch_size, hidden_size]
         # hidden state
@@ -104,33 +96,9 @@ class RNNModel(nn.Module):
         
         out, _  = self.rnn(new_x, (h_0, c_0))  # shape of out: [batch_size, length, hidden_size]
         
-        
-        # z1 = self.z1(torch.cat([abilitys, out], dim=2))
-        # z1 = self.tanz1(z1)
-        # z2 = self.z2(torch.cat([abilitys, out], dim=2))
-        # z2 = self.tanz2(z2)
-        
-        # ht = torch.cat([z1 * abilitys, z2 * out], dim=2)
-        
-        # new_out, _ = self.rnn2(ht)        
         res = self.sig(self.fc(out))
 
         res = res[:, :-1, :]
         
         
-        # new_out = torch.cat([out, abilitys], dim=2)
-        # new_out = self.tanh2(self.fc2(new_out))
-        
-        # hidden2 = self.init_hidden(new_out.size(0))  # shape: [num_layers * num_directions, batch_size, hidden_size]
-        
-        # new_out, hidden2 = self.rnn2(new_out, hidden2)
-        
-        
-        # res = self.sig(self.fc(new_out))
         return res
-
-        
-        # h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim, device=self.device)  # shape: [num_layers * num_directions, batch_size, hidden_size]
-        # out, hn = self.rnn(x)  # shape of out: [batch_size, length, hidden_size]
-        # res = self.sig(self.fc(out))  # shape of res: [batch_size, length, question]
-        # return res

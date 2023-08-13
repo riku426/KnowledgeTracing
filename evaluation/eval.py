@@ -51,11 +51,7 @@ class lossFunc(nn.Module):
             
             delta = batch[student][:, 0:self.num_of_questions] + batch[
                 student][:, self.num_of_questions:self.num_of_questions*2]
-            # ここまで修正した。
-            # ToDo
-            # 上のerrorを修正する
-            # a = の部分も上と同じように修正
-            # その後はまたerrorのでばっく
+
             temp = pred[student][:self.max_step - 1].mm(delta[1:].t())
             index = torch.tensor([[i for i in range(self.max_step - 1)]],
                                  dtype=torch.long, device=self.device)

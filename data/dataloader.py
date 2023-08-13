@@ -10,21 +10,20 @@ import torch.utils.data as Data
 from data.readdata_v3 import DataReader
 from collections import defaultdict
 
-dataset = 'algebra'
 
 
-def getDataLoader(batch_size, num_of_questions, max_step):
+def getDataLoader(batch_size, num_of_questions, max_step, dataset):
     # handle = DataReader('dataset/assist2009/4_Ass_09_train.csv',
     #                     'dataset/assist2009/4_Ass_09_test.csv', max_step,
     #                     num_of_questions)
     if dataset == 'algebra':
         handle = DataReader('dataset/algebra05/algebra_train.csv',
                         'dataset/algebra05/algebra_test.csv', max_step,
-                        num_of_questions)
+                        num_of_questions, dataset)
     elif dataset == 'assist2009':
         handle = DataReader('dataset/assist2009/4_Ass_09_train.csv',
                         'dataset/assist2009/4_Ass_09_test.csv', max_step,
-                        num_of_questions)
+                        num_of_questions, dataset)
     dtrain = torch.from_numpy(handle.getTrainData().astype(float)).float()
     dtest = torch.from_numpy(handle.getTestData().astype(float)).float()
     print(2)
