@@ -1,5 +1,7 @@
 # KnowledgeTracing
 
+conda activate time
+
 ## Introduction
 
 Some implementations of knowledge tracing with pytorch

@@ -27,6 +27,9 @@ import os
 import random
 import logging
 import torch
+import tqdm
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 import torch.optim as optim
 import numpy as np
@@ -115,6 +118,7 @@ def main():
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
     loss_func = eval.lossFunc(questions, length, device)
+    
 
     for epoch in range(epochs):
         print('epoch: ' + str(epoch))
@@ -122,6 +126,54 @@ def main():
                                           loss_func, device)
         logger.info(f'epoch {epoch}')
         pred, truth = eval.test_epoch(model, testLoade, loss_func, device)
+    
+    torch.save(model, 'model_weight.pth')
+    
+    # 学習者1人のヒートマップを作成する。
+    save_model = torch.load('model_weight.pth')
+    skills = []
+    for batch in tqdm.tqdm(testLoade, desc='Testing:     ', mininterval=2):
+        batch = batch.to(device)
+        pred = save_model(batch).to(device)
+        visual_data = pred[1][:50]
+        answer = (((batch[1][:, 0:questions] - batch[1][:, questions:questions*2]).sum(1) + 1) // 2)[1:]
+        batch_matrix = batch.tolist()
+        for j in range(length):
+            flag = 0
+            for i in range(questions*2):
+                if batch_matrix[1][j][i] == 1 and i <= questions-1:
+                    skills.append(i+1)
+                    flag = 1
+                    break
+                elif batch_matrix[1][j][i] == 1 and i > questions-1:
+                    skills.append(i+1-questions)
+                    flag= 1
+                    break
+            if flag == 0:
+                skills.append(0)
+        break
+    print('visual_data')
+    print(visual_data.size())
+    visual_data = visual_data.tolist()
+    print('answer')
+    print(answer.size())
+    answer = answer.tolist()
+    visual = []
+    number_list = [3, 7, 8, 9]
+    for i in range(49):
+        print(i,skills[i], answer[i])
+    for number in number_list:
+        visual_can = []
+        for data in visual_data:
+            visual_can.append(data[number-1])
+        visual.append(visual_can)
+    sns.set()
+    ax = sns.heatmap(visual)
+    yticks = [str(x) for x in number_list]
+    ax.set_yticks(np.arange(0, len(yticks)), labels=yticks, rotation=0)
+    plt.show()
+    
+    
         
     print(pred.shape)
     print(truth.shape)
